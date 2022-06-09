@@ -1,0 +1,1 @@
+# To create preprocessing steps for the uploaded images. PROCESS_IMAGE.process

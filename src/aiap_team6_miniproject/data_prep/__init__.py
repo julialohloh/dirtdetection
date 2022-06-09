@@ -2,3 +2,4 @@
 utilities for processing and cleaning data."""
 
 from . import process_text
+from . import process_image
