@@ -49,31 +49,49 @@ def main():
 
     st.subheader("AIAP Team 6")
 
-    if st.button('Check floor for dirt!'):
-        r2 = requests.get('https://aisingapore.org/wp-content/uploads/2018/09/cropped-AISG-Vertical-Logo-wo-tagline-RGB-Full-Colour.png')
-        st.image(BytesIO(r2.content))
+    # if st.button('Check floor for dirt!'):
+    #     r2 = requests.get('https://aisingapore.org/wp-content/uploads/2018/09/cropped-AISG-Vertical-Logo-wo-tagline-RGB-Full-Colour.png')
+    #     st.image(BytesIO(r2.content))
 
-    if st.button('check post'):
-        p1 = requests.post(url='https://httpbin.org/post', data={'d':'d'}, json={'j':'j'})
-        st.write(p1)
+    # if st.button('check post'):
+    #     p1 = requests.post(url='https://httpbin.org/post', data={'d':'d'}, json={'j':'j'})
+    #     st.write(p1)
 
 
     image_file = st.file_uploader("Upload Images", type=["png","jpg","jpeg"])
     if image_file is not None:
         
         # To See details
+        # p1 = requests.post(url='http://127.0.0.1:8080/preprocess/image')
+        # file_details = {"filename":image_file.name, "filetype":image_file.type,
+        #                     "filesize":image_file.size}
+        # st.write(file_details)
+
+
         file_details = {"filename":image_file.name, "filetype":image_file.type,
                             "filesize":image_file.size}
         st.write(file_details)
+        # To View Uploaded Image
+
+        st.image(load_image(image_file))
+
+        test_file = image_file.read()
+        #test_file = open(image_file)
+        test_response = requests.post('http://127.0.0.1:8080/preprocess/image', 
+        files = {"file": test_file})
+        st.write(test_response)
+
+
 
         # To View Uploaded Image
-        st.image(load_image(image_file))
+        # st.image(load_image(image_file))
+        # st.write(p1)
     
-        st.download_button(
-        label="Download image", 
-        data=image_file,
-        file_name="imagename.png",
-        mime="image/png")
+        # st.download_button(
+        # label="Download image", 
+        # data=image_file,
+        # file_name="imagename.png",
+        # mime="image/png")
         # Push image to fastapi so that you guys can do preprocessing
         # Get preprocessed img from fastapi
 
