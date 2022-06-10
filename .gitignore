@@ -1,0 +1,14 @@
+/YOLOMODEL/weights
+/__pycache__
+/aisg-context
+/assets
+/conf
+/data
+/datasets
+/docker
+/docs
+/images
+/models
+/notebooks
+/polyaxon
+/yolov3
