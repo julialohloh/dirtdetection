@@ -1,16 +1,14 @@
-import os
-import logging
-import hydra
 import streamlit as st
+import requests
+from PIL import Image
 
-import aiap_team6_miniproject as team6_miniproject
+##############JULIA WORKING CODE##########################################
 
-@st.cache(allow_output_mutation=True)
-def load_model(model_path):
-    return team6_miniproject.modeling.utils.load_model(model_path)
+# # interact with FastAPI endpoint
+test_url = "http://127.0.0.1:8080/api/v1/model/preprocess/image"
+predict_url = "http://127.0.0.1:8080/api/v1/model/infer"
 
-@hydra.main(config_path="../conf/base", config_name="pipelines.yml")
-def main(args):
+def main():
     """This main function does the following:
     - load logging config
     - loads trained model on cache
@@ -18,35 +16,43 @@ def main(args):
     - conducts inferencing on string
     - outputs prediction results on the dashboard
     """
+    st.subheader("AIAP Team 6")
+    image_file = st.file_uploader("Upload Images", type=["png","jpg","jpeg"])
+    if image_file is not None:
+        
+        # To See details
+        file_details = {"filename":image_file.name, "filetype":image_file.type, "filesize":image_file.size}
+        st.write(file_details)
+        # To View Uploaded Image
+        test_file = image_file.read()
+        # test_file = open(image_file)
+        test_response = requests.post('http://127.0.0.1:8080/preprocess/image', files = {"file": test_file})
+        saved_address = test_response.text
+        st.write("Uploaded file saved at: " + str(saved_address))
+        st.write("This is the original image")
+        st.image(Image.open(image_file))
 
-    logger = logging.getLogger(__name__)
-    logger.info("Setting up logging configuration.")
-    logger_config_path = os.path.\
-        join(hydra.utils.get_original_cwd(),
-            "conf/base/logging.yml")
-    team6_miniproject.general_utils.setup_logging(logger_config_path)
+        if test_response.ok:
+            st.write("Upload completed successfully!")
+        else:
+            st.write("Something went wrong!")
 
-    logger.info("Loading the model...")
-    pred_model = load_model(args["inference"]["model_path"])
+        if st.button("Predictions"):
+            predict = requests.post('http://127.0.0.1:8080/predict', 
+            data = {"WRITE_PATH": test_response.json()})
+            st.write(predict.json())
+            st.write("This is the returned image")
+            st.image(Image.open(predict.json()))
+            an_img = predict.json()
 
-    logger.info("Loading dashboard...")
-    title = st.title('AIAP Team 6 Mini Project')
-
-    text_input = st.text_area("Review",
-        placeholder="Insert your review here")
-
-    if st.button("Get sentiment"):
-        logger.info("Conducting inferencing on text input...")
-        curr_pred_result = float(pred_model.predict([text_input])[0])
-        sentiment = ("positive" if curr_pred_result > 0.5
-                    else "negative")
-        logger.info(
-            "Inferencing has completed. Text input: {}. Sentiment: {}"
-            .format(text_input, sentiment))
-        st.write("The sentiment of the review is {}."
-            .format(sentiment))
-    else:
-        st.write("Awaiting a review...")
+            # saved_address = test_response.text
+            # st.write("Uploaded file saved at: " + str(saved_address))
+            with open(an_img, 'rb') as file:
+                st.download_button(
+                label="Download image", 
+                data=file,
+                file_name="annotated_image.png",
+                mime="image/png")
 
 if __name__ == "__main__":
     main()
