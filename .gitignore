@@ -11,4 +11,7 @@
 /models
 /notebooks
 /polyaxon
+/scripts
+/src
 /yolov3
+/weights
