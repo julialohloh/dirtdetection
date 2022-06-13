@@ -1,18 +1,19 @@
 import os
-import logging
+# import logging
 import fastapi
 
-import aiap_team6_miniproject_fastapi as team6_miniproject_fapi
+# import aiap_team6_miniproject_fastapi as team6_miniproject_fapi
 # import aiap_team6_miniproject.data_prep.process_image as process_image
 from PIL import Image
 # from utils import read_imagefile
-from fastapi import UploadFile, File
+from fastapi import UploadFile, File, Form
+from io import BytesIO
 
 # logger = logging.getLogger(__name__)
 
 
-ROUTER = fastapi.APIRouter()
-PRED_MODEL = team6_miniproject_fapi.deps.PRED_MODEL
+app = fastapi.APIRouter()
+# PRED_MODEL = team6_miniproject_fapi.deps.PRED_MODEL
 
 def read_imagefile(file):
     """Takes in jpg and png file and Read it
@@ -28,12 +29,12 @@ def read_imagefile(file):
     array
         Image array data
     """
-    image = Image.open(file)
-
+    image = Image.open(BytesIO(file))
+    
     return image
     
-@ROUTER.post("/preprocess/image", status_code=fastapi.status.HTTP_200_OK)
-def preprocess_api(file: UploadFile=File(...)): # place holder for image preprocessing 
+@app.post("/preprocess/image", status_code=fastapi.status.HTTP_200_OK)
+async def preprocess_api(file: UploadFile=File(...)): # place holder for image preprocessing 
     """Endpoint that takes in the image from user upload and preprocess it for
     training or inference.
 
@@ -46,35 +47,28 @@ def preprocess_api(file: UploadFile=File(...)): # place holder for image preproc
     str
         address of the preprocessed image
     """
-    
-    try:
-        extension = file.filename.split(".")[-1] in ("jpg","jpeg","png")
-        if not extension:
-            return "Image must be jpg or png format."
-        # logger.info("Uploading Image")
-        image = read_imagefile(file.read())
-        print("image read")
-        # logger.info("Reading Image, starting preprocessing")
-        # processed_image = process_image.preprocess(image) # Placeholder
-        # logger.info("Image preprocessing completed")
-        
-        wk_dir = str(os.getcwd())
-        print(wk_dir)
-        filename = file.filename
-        print(filename)
-        image = image.save(wk_dir + filename)
-        # Figure a way to save to polyaxon persistent data?
-        # Saving done in the process_image.py file?
-        # Download locally?
-        # Create the address of the saved image
-        saved_location = str(wk_dir + filename)
-        print(saved_location)
-    except Exception as error:
-        print(error)
-        raise fastapi.HTTPException(
-            status_code=500, detail="Internal server error.")
+    print("here reached")
 
-    return {"address": saved_location} # placeholder for processed image address
+    image = read_imagefile(await file.read())
+
+    print("image read")
+
+    print(file)
+    print(file.filename)
+    print(image)
+    print("Separated")
+    
+
+    image.save(file.filename + r".jpg")
+    # image.save(str(os.getcwd()) + r"\\" + file.filename + r".jpg")
+
+    wk_dir = str(os.getcwd())
+    print(wk_dir)
+
+    # print prints starlette.datastructure.UploadFile object at 0x0000015A7920E2B0 
+
+
+    return {"address": wk_dir} # placeholder for processed image address
 
 
 # @ROUTER.get("/download/", status_code=fastapi.status.HTTP_200_OK)
