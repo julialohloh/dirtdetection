@@ -1,75 +1,71 @@
-
-from email.header import Header
-from fileinput import filename
-from gzip import WRITE
-import os
+import logging
 import fastapi
-import uuid
-from PIL import Image
-# from utils import read_imagefile
-from fastapi import UploadFile, Response, File, Form
-from fastapi.responses import FileResponse
-from io import BytesIO
-import shutil
-import shutil
-import uuid
-from pathlib import Path
-from typing import List, Optional
-from infer import Inference
 
-# logger = logging.getLogger(__name__)
+import aiap_team6_miniproject_fastapi as team6_miniproject_fapi
+
+
+logger = logging.getLogger(__name__)
+
+
 ROUTER = fastapi.APIRouter()
-# PRED_MODEL = team6_miniproject_fapi.deps.PRED_MODEL
-#################################Julia working codes########################
-  
-@ROUTER.post("/preprocess/image", status_code=fastapi.status.HTTP_200_OK)
-async def preprocess_api(file: UploadFile=File(...)): # place holder for image preprocessing 
-    """Endpoint that takes in the image from user upload and preprocess it for
-    training or inference.
-    
-    Parameters
-    ----------
-    image : Image that user upload for training or inference.
-
-    Returns
-    -------
-    str
-        address of the preprocessed image
-    """
-    WORK_DIR = os.getcwd()
-    # UUID to prevent file overwrite
-    # 'beautiful' path concat instead of WORK_DIR + '/' + REQUEST_ID
-    WORKSPACE = WORK_DIR
-    if not os.path.exists(WORKSPACE):
-        # recursively create workdir/unique_id
-        os.makedirs(WORKSPACE)
-    # iterate through all uploaded files
-    file.filename = f"{uuid.uuid4()}.jpg"
-    FILE_PATH = Path(file.filename)
-    WRITE_PATH = WORK_DIR / FILE_PATH
-    with open((WRITE_PATH) ,'wb') as myfile:
-        contents = await file.read()
-        myfile.write(contents)
-    return WRITE_PATH
-    # return {"source": str(WRITE_PATH)}
+PRED_MODEL = team6_miniproject_fapi.deps.PRED_MODEL
 
 
 @ROUTER.post("/predict", status_code=fastapi.status.HTTP_200_OK)
-async def predict(WRITE_PATH: str = Form(...)): # place holder for image preprocessing 
-    """Endpoint that takes in the image from user upload and preprocess it for
-    training or inference.
-    
+def predict_sentiment(movie_reviews_json: team6_miniproject_fapi.schemas.MovieReviews):
+    """Endpoint that returns sentiment classification of movie review
+    texts.
+
     Parameters
     ----------
-    image : Image that user upload for training or inference.
+    movie_reviews_json : team6_miniproject_fapi.schemas.MovieReviews
+        'pydantic.BaseModel' object detailing the schema of the request
+        body
 
     Returns
     -------
-    str
-        address of the preprocessed image
+    dict
+        Dictionary containing the sentiments for each movie review in
+        the body of the request.
+
+    Raises
+    ------
+    fastapi.HTTPException
+        A 500 status error is returned if the prediction steps
+        encounters any errors.
     """
-    a = Inference()
-    result_dir = a.infer(weights='YOLOMODEL/full_10epoch.pt',project="YOLOMODEL/runs/detect",imgsz=[1280,900], source=WRITE_PATH)
-    image = a.get_results(result_dir)
-    # return FileResponse(image)
-    return image
+    result_dict = {"data": []}
+
+    try:
+        logger.info("Generating sentiments for movie reviews.")
+        movie_reviews_dict = movie_reviews_json.dict()
+        review_texts_array = movie_reviews_dict["reviews"]
+        for review_val in review_texts_array:
+            curr_pred_result = PRED_MODEL.predict([review_val["text"]])
+            sentiment = ("positive" if curr_pred_result > 0.5
+                        else "negative")
+            result_dict["data"].append(
+                {"review_id": review_val["id"], "sentiment": sentiment})
+            logger.info(
+                "Sentiment generated for Review ID: {}".
+                format(review_val["id"]))
+
+    except Exception as error:
+        print(error)
+        raise fastapi.HTTPException(
+            status_code=500, detail="Internal server error.")
+
+    return result_dict
+
+
+@ROUTER.get("/version", status_code=fastapi.status.HTTP_200_OK)
+def get_model_version():
+    """Get version (UUID) of predictive model used for the API.
+
+    Returns
+    -------
+    dict
+        Dictionary containing the UUID of the predictive model being
+        served.
+    """
+    return {"data": {"model_uuid": team6_miniproject_fapi.config.SETTINGS.PRED_MODEL_UUID}}
