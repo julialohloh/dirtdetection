@@ -10,7 +10,6 @@ test_url = "http://127.0.0.1:8080/api/v1/model/preprocess/image"
 predict_url = "http://127.0.0.1:8080/api/v1/model/infer"
 
 
-
 def main():
     """This main function does the following:
     - load logging config
@@ -28,6 +27,7 @@ def main():
         selected = option_menu("Main Menu", ["Image Prediction", 'Live Detection'],icons=['image', 'camera'], menu_icon="cast", styles={'nav-link': {'background-color':'#f50505'}}, default_index=1)
 
     st.markdown('#')    
+    # For detection via static image upload
     if selected == 'Image Prediction':
         image_file = st.file_uploader("Upload Images", type=["png","jpg","jpeg"])
         if image_file is not None:
@@ -70,6 +70,7 @@ def main():
                     mime="image/png")
     
     st.markdown('#')
+    # For detection via webcam live feed
     if selected == 'Live Detection':
         if st.button('Live Detection'):
             requests.post('http://127.0.0.1:8080/live', 

@@ -6,7 +6,6 @@ import os
 import fastapi
 import uuid
 from PIL import Image
-# from utils import read_imagefile
 from fastapi import UploadFile, Response, File, Form
 import shutil
 import uuid
