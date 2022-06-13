@@ -19,7 +19,7 @@ APP = fastapi.FastAPI(
 )
 API_ROUTER = fastapi.APIRouter()
 API_ROUTER.include_router(
-    team6_miniproject_fapi.v1.routers.model.ROUTER, prefix="/dirt", tags=["dirt"]
+    team6_miniproject_fapi.v1.routers.model.ROUTER, prefix="/model", tags=["model"]
 )
 APP.include_router(API_ROUTER, prefix=team6_miniproject_fapi.config.SETTINGS.API_V1_STR)
 
