@@ -20,13 +20,14 @@ def main():
     - outputs prediction results on the dashboard
     """
 
-    st.markdown(f'<p style="color:#050505;text-align:center;font-size:48px;border-radius:2%;">AIAP Team 6</p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="color:#050505;text-align:center;font-size:48px;border-radius:2%;">AIAP Team 6 Dirt Detection</p>', unsafe_allow_html=True)
 
-    st.markdown(f'<p style="background-color:#f50505;color:#f7f5f5;text-align:center;font-size:24px;border-radius:2%;">You never know how dirty your floor is!</p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="background-color:#f50505;color:#f7f5f5;text-align:center;font-size:36px;border-radius:2%;">You never know how dirty your floor is!</p>', unsafe_allow_html=True)
 
     with st.sidebar:
-        selected = option_menu("Main Menu", ["Image Prediction", 'Live Detection'], 
-            icons=['image', 'camera'], menu_icon="cast", default_index=1)
+        selected = option_menu("Main Menu", ["Image Prediction", 'Live Detection'],icons=['image', 'camera'], menu_icon="cast", styles={'nav-link': {'background-color':'#f50505'}}, default_index=1)
+
+    st.markdown('#')    
     if selected == 'Image Prediction':
         image_file = st.file_uploader("Upload Images", type=["png","jpg","jpeg"])
         if image_file is not None:
@@ -50,7 +51,7 @@ def main():
 
             if st.button("Predictions"):
                 waiting_text = st.empty()
-                waiting_text.text("Waiting for the slow model to provide a response...")
+                waiting_text.text("Generating prediction...")
 
                 predict = requests.post('http://127.0.0.1:8080/predict', 
                 data = {"WRITE_PATH": test_response.json()})
@@ -66,7 +67,7 @@ def main():
                     file_name="annotated_image.png",
                     mime="image/png")
     
-    
+    st.markdown('#')
     if selected == 'Live Detection':
         if st.button('Live Detection'):
             requests.post('http://127.0.0.1:8080/live', 

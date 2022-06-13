@@ -8,7 +8,6 @@ import uuid
 from PIL import Image
 # from utils import read_imagefile
 from fastapi import UploadFile, Response, File, Form
-from io import BytesIO
 import shutil
 import uuid
 from pathlib import Path
