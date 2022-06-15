@@ -18,14 +18,14 @@ def main():
     - outputs predicted annotated image on the dashboard
     """
     # Header showing "AIAP Team 6 Dirt Detection"
-    st.markdown(f'<p style="color:#050505;text-align:center;font-size:48px;border-radius:2%;">AIAP Team 6 Dirt Detection</p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="color:#683B8B;text-align:center;font-size:48px;border-radius:2%;">AIAP Team 6 Dirt Detection</p>', unsafe_allow_html=True)
 
     # Subheader showing "You never know how dirty your floor is!"
-    st.markdown(f'<p style="background-color:#f50505;color:#f7f5f5;text-align:center;font-size:36px;border-radius:2%;">You never know how dirty your floor is!</p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="background-color:#683B8B;color:#f7f5f5;text-align:center;font-size:36px;border-radius:2%;">You never know how dirty your floor is!</p>', unsafe_allow_html=True)
 
     # Sidebar with options: "Image Prediction" & "Live Detection"
     with st.sidebar:
-        selected = option_menu("Main Menu", ["Image Prediction", 'Live Detection'],icons=['image', 'camera'], menu_icon="cast", styles={'nav-link': {'background-color':'#f50505'}}, default_index=1)
+        selected = option_menu("Main Menu", ["Image Prediction", 'Live Detection'],icons=['image', 'camera'], menu_icon="cast", styles={'nav-link': {'background-color':'#683B8B', 'font-color': '#FFFFFF'}}, default_index=1)
 
     st.markdown('#')    
     # For detection via static image upload
